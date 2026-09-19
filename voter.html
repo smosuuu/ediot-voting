@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>EDIOT • Voter Portal</title>
+<style>
+:root{--bg:#070b14;--panel:#0f1625;--line:#26334b;--text:#f8fafc;--muted:#91a0b7;--accent:#6d5dfc;--cyan:#28c7e8;--green:#18c58f}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% 0,#172044,#070b14 42%);color:var(--text);font-family:Inter,system-ui,Arial,sans-serif}.wrap{width:min(680px,100%);margin:auto;padding:18px}.top{text-align:center;padding:25px 8px 15px}.logo{width:58px;height:58px;margin:auto;border-radius:17px;background:linear-gradient(135deg,#7c6cff,#28c7e8);display:grid;place-items:center;font-size:25px;font-weight:900;box-shadow:0 12px 35px #4f46e555}.top h1{font-size:24px;margin:12px 0 5px}.top p{color:var(--muted);font-size:12px;margin:0}.card{background:#0f1625eF;border:1px solid var(--line);border-radius:22px;padding:20px;box-shadow:0 20px 55px #0006;margin-bottom:15px}input,button{width:100%;padding:14px;border-radius:12px;border:1px solid #33425d;background:#09111f;color:#fff;font:inherit;font-size:14px}button{border:0;background:linear-gradient(135deg,#6d5dfc,#5145d9);font-weight:800;cursor:pointer}.candidate{width:100%;display:flex;align-items:center;gap:12px;text-align:left;margin:9px 0;padding:14px;border:1px solid var(--line);border-radius:15px;background:#111b2d;color:#fff}.candidate.selected{border-color:#7568ff;background:#1a2040;box-shadow:0 0 0 1px #7568ff44}.radio{width:20px;height:20px;border:2px solid #63718a;border-radius:50%;flex:none}.selected .radio{border:6px solid #7c6cff}.avatar{width:43px;height:43px;border-radius:12px;background:linear-gradient(135deg,#263557,#47577a);display:grid;place-items:center;font-weight:900}.candidate b{font-size:14px}.candidate small{display:block;color:var(--muted);font-size:10px;margin-top:3px}.hidden{display:none!important}.status{text-align:center;padding:16px;border-radius:15px;background:#08261f;border:1px solid #145c4c;color:#7df0c5;font-size:13px}.error{background:#2a1017;border-color:#6d2635;color:#ff9eb0}.secure{font-size:11px;color:var(--muted);line-height:1.5;text-align:center}.footer{text-align:center;color:#71819a;font-size:11px;padding:18px 5px 10px;border-top:1px solid var(--line)}.footer b{color:#aebbd0}.back{background:#26354c;margin-top:9px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+ <div class="logo">E</div>
+ <h1>EDIOT VOTER PORTAL</h1>
+ <p>Secure electronic voting interface</p>
+</header>
+
+<section id="login" class="card">
+ <h2 style="margin-top:0">Verify Voter ID</h2>
+ <p style="color:var(--muted);font-size:12px">Enter the voter ID provided by the election owner.</p>
+ <input id="vid" placeholder="Enter Voter ID" autocomplete="off">
+ <br><br><button onclick="verify()">VERIFY VOTER ID</button>
+ <p id="msg" class="secure"></p>
+</section>
+
+<section id="ballot" class="card hidden">
+ <div class="status">✓ Voter verified — <span id="voterName"></span></div>
+ <h2>Select Candidate</h2>
+ <p style="color:var(--muted);font-size:12px">Select one candidate and confirm your vote.</p>
+ <div id="candidates"></div>
+ <br><button id="voteBtn" onclick="castVote()">CONFIRM & CAST VOTE</button>
+ <p class="secure">Your voter ID can cast only one vote. Candidate results are not shown on this voter screen.</p>
+</section>
+
+<section id="done" class="card hidden">
+ <div class="status">
+  <h2 style="margin:0 0 8px">✓ Vote Recorded</h2>
+  <div>Your vote has been submitted successfully.</div>
+ </div>
+ <br>
+ <p class="secure">This voter ID is now locked and cannot be used to cast another vote.</p>
+</section>
+
+<footer class="footer">
+ <b>© sMosuuu By SM TECHNOLOGIES</b>
+ <div style="margin-top:4px">EDIOT Voting System • Voter Portal</div>
+</footer>
+</div>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+import {getDatabase,ref,get,runTransaction,push,set} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
+
+const firebaseConfig={
+apiKey:"AIzaSyAzoT0YnkwoIFKOc5BsDoP-L4Vpu3NZCLU",
+authDomain:"voting-machine-by-sm-techn.firebaseapp.com",
+projectId:"voting-machine-by-sm-techn",
+storageBucket:"voting-machine-by-sm-techn.firebasestorage.app",
+messagingSenderId:"853180794186",
+appId:"1:853180794186:web:b43d3640c741319df66db3",
+measurementId:"G-0S085H6LJ2",
+databaseURL:"https://voting-machine-by-sm-techn-default-rtdb.firebaseio.com"};
+const db=getDatabase(initializeApp(firebaseConfig));
+
+const candidates=[
+{id:"mohsin",name:"Mohsin",party:""},
+{id:"pratiksha",name:"Pratiksha",party:""},
+{id:"danish",name:"Danish",party:""},
+{id:"kadam_vaishnavi",name:"Kadam Vaishnavi",party:""},
+{id:"rashid",name:"Rashid",party:""}];
+
+let voterKey="",selected=null;
+
+const $=x=>document.getElementById(x);
+const safeKey=s=>encodeURIComponent(s.trim()).replaceAll(".","%2E");
+const esc=s=>String(s??"").replace(/[&<>"']/g,x=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[x]));
+
+function renderCandidates(){
+ $("candidates").innerHTML=candidates.map(c=>`
+ <button type="button" class="candidate" data-id="${c.id}" onclick="selectCandidate('${c.id}')">
+  <div class="radio"></div><div class="avatar">${c.name[0]}</div>
+  <div><b>${esc(c.name)}</b><small>${esc(c.party)}</small></div>
+ </button>`).join("");
+}
+renderCandidates();
+
+window.verify=async()=>{
+ const id=$("vid").value.trim();
+ if(!id){$("msg").textContent="Please enter your voter ID.";return}
+ const snap=await get(ref(db,"ediot/voters/"+safeKey(id)));
+ if(!snap.exists()){$("msg").textContent="Voter ID is not registered.";return}
+ const v=snap.val();
+ if(v.voted){$("login").classList.add("hidden");$("done").classList.remove("hidden");return}
+ voterKey=safeKey(id);
+ $("voterName").textContent=esc(v.name||"Voter");
+ $("login").classList.add("hidden");$("ballot").classList.remove("hidden");
+};
+window.selectCandidate=id=>{
+ selected=id;
+ document.querySelectorAll(".candidate").forEach(x=>x.classList.toggle("selected",x.dataset.id===id));
+};
+window.castVote=async()=>{
+ if(!selected){alert("Please select a candidate.");return}
+ if(!voterKey)return;
+ $("voteBtn").disabled=true;
+ const voterRef=ref(db,"ediot/voters/"+voterKey);
+ const result=await runTransaction(voterRef,current=>{
+   if(!current || current.voted)return current;
+   return {...current,voted:true,votedAt:Date.now(),votedFor:selected};
+ });
+ if(!result.committed){
+   $("ballot").classList.add("hidden");$("done").classList.remove("hidden");return;
+ }
+ const countRef=ref(db,"ediot/counts/"+selected);
+ await runTransaction(countRef,current=>Number(current||0)+1);
+ const logRef=push(ref(db,"ediot/logs"));
+ await set(logRef,{voterKey:voterKey,candidate:selected,timestamp:Date.now()});
+ $("ballot").classList.add("hidden");$("done").classList.remove("hidden");
+};
+</script>
+</body>
+</html>
