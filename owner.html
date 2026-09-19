@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>EDIOT • Command Center</title>
+<style>
+:root{--bg:#070b14;--panel:#0f1625;--panel2:#131d30;--line:#243149;--text:#f8fafc;--muted:#8fa0ba;--accent:#6d5dfc;--green:#18c58f;--amber:#f6b73c;--red:#ff5d73;--cyan:#28c7e8}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 15% 0%,#172044 0,#070b14 35%),#070b14;color:var(--text);font-family:Inter,system-ui,Arial,sans-serif}.app{max-width:1250px;margin:auto;padding:16px}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 4px 18px}.brand{display:flex;align-items:center;gap:12px}.logo{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#7c6cff,#25c7e8);display:grid;place-items:center;font-weight:900;font-size:19px;box-shadow:0 10px 30px #4f46e566}.brand h1{font-size:20px;margin:0}.brand p{font-size:11px;color:var(--muted);margin:3px 0}.live{padding:8px 11px;border-radius:99px;border:1px solid #145c4c;background:#08261f;color:#78f1c6;font-size:11px;font-weight:800}
+.hero{background:linear-gradient(120deg,#121b31cc,#0c1423dd);border:1px solid var(--line);border-radius:22px;padding:20px;display:flex;justify-content:space-between;gap:18px;align-items:center;box-shadow:0 20px 50px #0005}.hero h2{margin:0 0 5px;font-size:24px}.hero p{margin:0;color:var(--muted);font-size:13px}.clock{font-size:22px;font-weight:800;text-align:right}.clock small{display:block;color:var(--muted);font-size:10px;font-weight:500}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:14px 0}.stat{background:var(--panel);border:1px solid var(--line);border-radius:17px;padding:16px}.stat span{color:var(--muted);font-size:11px;font-weight:700}.stat strong{display:block;font-size:28px;margin:7px 0 2px}.stat em{font-style:normal;font-size:11px;color:#7f91aa}
+.grid{display:grid;grid-template-columns:1.25fr .75fr;gap:14px}.panel{background:#0d1524e8;border:1px solid var(--line);border-radius:19px;padding:17px;margin-bottom:14px}.panel h3{margin:0 0 14px;font-size:15px}.panelhead{display:flex;justify-content:space-between;align-items:center;gap:10px}.small{font-size:11px;color:var(--muted)}
+.barrow{margin:15px 0}.barinfo{display:flex;justify-content:space-between;font-size:12px;margin-bottom:7px}.barbg{height:10px;border-radius:99px;background:#1a2538;overflow:hidden}.bar{height:100%;border-radius:99px;background:linear-gradient(90deg,#6d5dfc,#28c7e8);transition:.4s}
+.candidates{display:grid;grid-template-columns:1fr 1fr;gap:10px}.candidate{border:1px solid var(--line);background:#111b2d;border-radius:15px;padding:13px;display:flex;align-items:center;gap:11px}.avatar{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#263557,#47577a);display:grid;place-items:center;font-weight:800}.candidate b{font-size:13px}.candidate .votes{margin-left:auto;font-size:20px;font-weight:900}.candidate small{display:block;color:var(--muted);font-size:10px;margin-top:3px}
+form{display:grid;grid-template-columns:1fr 1fr;gap:10px}input,select,button{width:100%;padding:12px;border-radius:11px;border:1px solid #30405c;background:#0a1120;color:#fff;font:inherit;font-size:13px}button{border:0;background:linear-gradient(135deg,#6d5dfc,#5145d9);font-weight:800;cursor:pointer}button.green{background:#087b5c}button.dark{background:#27354c}button.red{background:#a62943}.full{grid-column:1/-1}
+.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:620px}th,td{text-align:left;padding:11px;border-bottom:1px solid #202d42;font-size:12px}th{color:#8192ac;font-weight:700}.ready{color:#f6c65b}.voted{color:#63e6b5}.pill{padding:5px 8px;border-radius:99px;background:#132235}
+.note{padding:11px;border-radius:12px;background:#211b0b;border:1px solid #5c4718;color:#f7d98a;font-size:11px;line-height:1.5}
+.login{min-height:100vh;display:grid;place-items:center;padding:18px}.loginbox{width:min(420px,100%);background:#0f1625;border:1px solid var(--line);border-radius:24px;padding:24px;box-shadow:0 30px 80px #0008}.loginbox .logo{margin-bottom:15px}.loginbox h1{margin:0}.loginbox p{color:var(--muted);font-size:12px}.loginbox input{margin:12px 0}.hidden{display:none!important}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#111c2e;border:1px solid #34435c;border-radius:12px;padding:11px 15px;font-size:12px;display:none;z-index:5}
+@media(max-width:850px){.cards{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr}}@media(max-width:560px){.cards{grid-template-columns:1fr 1fr}.hero{align-items:flex-start}.clock{font-size:16px}.candidates{grid-template-columns:1fr}form{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<section id="login" class="login">
+  <div class="loginbox">
+    <div class="logo">E</div>
+    <h1>EDIOT Command Center</h1>
+    <p>Owner authentication • election administration</p>
+    <input id="pw" type="password" placeholder="Owner password">
+    <button onclick="enter()">ACCESS OWNER PANEL</button>
+    <p id="err"></p>
+  </div>
+</section>
+
+<main id="main" class="app hidden">
+<header>
+  <div class="brand"><div class="logo">E</div><div><h1>EDIOT COMMAND CENTER</h1><p>Owner • Live election administration</p></div></div>
+  <div class="live">● FIREBASE LIVE</div>
+</header>
+
+<section class="hero">
+  <div><h2>Election Dashboard</h2><p>Monitor registration, turnout and candidate totals in real time.</p></div>
+  <div class="clock" id="clock">--:--<small>LOCAL TIME</small></div>
+</section>
+
+<section class="cards">
+ <div class="stat"><span>REGISTERED</span><strong id="reg">0</strong><em>Voter IDs</em></div>
+ <div class="stat"><span>VOTED</span><strong id="cast">0</strong><em>Completed votes</em></div>
+ <div class="stat"><span>READY</span><strong id="ready">0</strong><em>Awaiting vote</em></div>
+ <div class="stat"><span>TURNOUT</span><strong id="turnout">0%</strong><em>Of registered voters</em></div>
+</section>
+
+<div class="grid">
+<div>
+ <section class="panel">
+  <div class="panelhead"><h3>Candidate Results</h3><span class="small" id="total">0 total votes</span></div>
+  <div id="bars"></div>
+ </section>
+
+ <section class="panel">
+  <div class="panelhead"><h3>Candidate Cards</h3><span class="small">Live</span></div>
+  <div id="candidateCards" class="candidates"></div>
+ </section>
+
+ <section class="panel">
+  <div class="panelhead"><h3>Voter Registry</h3><span class="small">READY / VOTED</span></div>
+  <div class="tablewrap"><table><thead><tr><th>Name</th><th>Voter ID</th><th>Status</th><th>Registered</th></tr></thead><tbody id="tbody"></tbody></table></div>
+ </section>
+</div>
+
+<div>
+ <section class="panel">
+  <h3>Register Voter</h3>
+  <form onsubmit="registerVoter(event)">
+   <input id="name" placeholder="Full name" required>
+   <input id="vid" placeholder="Voter ID" required>
+   <button class="green full">＋ REGISTER VOTER</button>
+  </form>
+ </section>
+
+ <section class="panel">
+  <h3>Administration</h3>
+  <button class="dark" onclick="exportData()">EXPORT AUDIT JSON</button><br><br>
+  <button class="red" onclick="resetDemo()">RESET DEMO DATA</button>
+  <br><br>
+  <div class="note"><b>Integrity:</b> live vote counts are changed only by valid voter submissions. This panel does not secretly subtract a real person's vote or transfer it to another candidate.</div>
+ </section>
+
+ <section class="panel">
+  <h3>Presentation Simulation • Manipulation Rules</h3>
+  <div class="small">Demo-only controls. They modify <b>ediotSimulation</b> only and can never change real voter records or live election counts.</div><br>
+  <select id="simMode">
+    <option value="add">ADD simulated votes</option>
+    <option value="subtract">SUBTRACT simulated votes</option>
+    <option value="transfer">TRANSFER simulated votes A → B</option>
+  </select><br><br>
+  <select id="simCand"></select><br><br>
+  <select id="simTarget" class="hidden"></select><br><br>
+  <input id="simN" type="number" min="1" value="1"><br><br>
+  <button onclick="simulateRule()">APPLY SIMULATION RULE</button>
+  <div id="simOut" class="small" style="margin-top:12px"></div>
+ </section>
+</div>
+</div>
+
+<footer style="text-align:center;padding:22px 10px 10px;color:#71819a;font-size:11px;border-top:1px solid #243149;margin-top:8px">
+  <b style="color:#aebbd0">© sMosuuu By SM TECHNOLOGIES</b>
+  <div style="margin-top:4px">EDIOT Voting System • Owner Command Center</div>
+</footer>
+
+</main>
+<div id="toast" class="toast"></div>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+import {getDatabase,ref,get,set,onValue,remove} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
+
+const firebaseConfig={
+apiKey:"AIzaSyAzoT0YnkwoIFKOc5BsDoP-L4Vpu3NZCLU",
+authDomain:"voting-machine-by-sm-techn.firebaseapp.com",
+projectId:"voting-machine-by-sm-techn",
+storageBucket:"voting-machine-by-sm-techn.firebasestorage.app",
+messagingSenderId:"853180794186",
+appId:"1:853180794186:web:b43d3640c741319df66db3",
+measurementId:"G-0S085H6LJ2",
+databaseURL:"https://voting-machine-by-sm-techn-default-rtdb.firebaseio.com"};
+const db=getDatabase(initializeApp(firebaseConfig));
+const votersRef=ref(db,"ediot/voters"),countsRef=ref(db,"ediot/counts"),logsRef=ref(db,"ediot/logs"),simRef=ref(db,"ediotSimulation");
+const PASSWORD="1432";
+const candidates=[
+{id:"mohsin",name:"Mohsin",party:""},
+{id:"pratiksha",name:"Pratiksha",party:""},
+{id:"danish",name:"Danish",party:""},
+{id:"kadam_vaishnavi",name:"Kadam Vaishnavi",party:""},
+{id:"rashid",name:"Rashid",party:""}];
+
+const $=x=>document.getElementById(x);
+function toast(t){$("toast").textContent=t;$("toast").style.display="block";setTimeout(()=>$("toast").style.display="none",2200)}
+window.enter=()=>{if($("pw").value===PASSWORD){$("login").classList.add("hidden");$("main").classList.remove("hidden");toast("Owner panel unlocked");}else $("err").textContent="Incorrect owner password."};
+function key(s){return encodeURIComponent(s.trim()).replaceAll(".","%2E")}
+function esc(s){return String(s??"").replace(/[&<>"']/g,x=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[x]))}
+function drawCandidates(){
+ $("simCand").innerHTML=candidates.map(c=>`<option value="${c.id}">${c.name}</option>`).join("");
+ $("simTarget").innerHTML=candidates.map(c=>`<option value="${c.id}">${c.name}</option>`).join("");
+ $("candidateCards").innerHTML=candidates.map(c=>`<div class="candidate"><div class="avatar">${c.name[0]}</div><div><b>${esc(c.name)}</b><small>${esc(c.party)}</small></div><div class="votes" id="cv-${c.id}">0</div></div>`).join("");
+}
+drawCandidates();
+$("simMode").addEventListener("change",()=>{
+  $("simTarget").classList.toggle("hidden",$("simMode").value!=="transfer");
+});
+
+onValue(votersRef,s=>drawVoters(s.val()||{}));
+onValue(countsRef,s=>drawCounts(s.val()||{}));
+onValue(simRef,s=>drawSim(s.val()||{}));
+
+function drawVoters(d){
+ const a=Object.entries(d),v=a.filter(x=>x[1]?.voted).length;
+ $("reg").textContent=a.length;$("cast").textContent=v;$("ready").textContent=a.length-v;
+ $("turnout").textContent=a.length?Math.round(v/a.length*100)+"%":"0%";
+ $("tbody").innerHTML=a.length?a.map(([k,x])=>`<tr><td>${esc(x.name)}</td><td>${esc(x.id||decodeURIComponent(k))}</td><td><span class="pill ${x.voted?"voted":"ready"}">${x.voted?"VOTED":"READY"}</span></td><td>${x.registeredAt?new Date(x.registeredAt).toLocaleString():"—"}</td></tr>`).join(""):`<tr><td colspan="4">No voters registered yet.</td></tr>`;
+}
+function drawCounts(d){
+ let total=0;candidates.forEach(c=>total+=Number(d[c.id]||0));$("total").textContent=total+" total votes";
+ $("bars").innerHTML=candidates.map(c=>{let n=Number(d[c.id]||0),pct=total?Math.round(n/total*100):0;return `<div class="barrow"><div class="barinfo"><span>${esc(c.name)}</span><b>${n} • ${pct}%</b></div><div class="barbg"><div class="bar" style="width:${pct}%"></div></div></div>`}).join("");
+ candidates.forEach(c=>$("cv-"+c.id).textContent=Number(d[c.id]||0));
+}
+window.registerVoter=async e=>{e.preventDefault();let n=$("name").value.trim(),id=$("vid").value.trim();let r=ref(db,"ediot/voters/"+key(id));if((await get(r)).exists()){toast("Voter ID already exists");return}await set(r,{name:n,id,voted:false,registeredAt:Date.now()});$("name").value="";$("vid").value="";toast("Voter registered")};
+window.exportData=async()=>{let [v,c,l]=await Promise.all([get(votersRef),get(countsRef),get(logsRef)]);let blob=new Blob([JSON.stringify({exportedAt:new Date().toISOString(),voters:v.val()||{},counts:c.val()||{},logs:l.val()||{}},null,2)],{type:"application/json"});let a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="EDIOT-Audit-"+Date.now()+".json";a.click();toast("Audit exported")};
+window.resetDemo=async()=>{if(confirm("Reset ALL EDIOT demo data?")){await remove(ref(db,"ediot"));toast("Demo data reset")}};
+window.simulateRule=async()=>{
+  let mode=$("simMode").value,from=$("simCand").value,to=$("simTarget").value,n=Math.max(1,Number($("simN").value)||1);
+  if(mode==="transfer" && from===to){toast("Choose two different candidates");return}
+  let s=await get(simRef),d=s.val()||{};
+  if(mode==="add"){
+    d[from]=Math.max(0,Number(d[from]||0)+n);
+  }else if(mode==="subtract"){
+    d[from]=Math.max(0,Number(d[from]||0)-n);
+  }else{
+    d[from]=Math.max(0,Number(d[from]||0)-n);
+    d[to]=Math.max(0,Number(d[to]||0)+n);
+  }
+  await set(simRef,d);
+  toast("Simulation rule applied");
+};
+function drawSim(d){$("simOut").innerHTML=candidates.map(c=>`${esc(c.name)}: <b>${d[c.id]||0}</b>`).join(" &nbsp;•&nbsp; ")}
+setInterval(()=>{let d=new Date();$("clock").innerHTML=d.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit",second:"2-digit"})+"<small>LOCAL TIME</small>"},1000);
+</script>
+</body></html>
